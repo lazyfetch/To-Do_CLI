@@ -46,7 +46,7 @@ public class TaskManager
             tasks.add(loadedTask);
         }
     }
-    
+
     public void loadTaskList(String listName) throws IOException
     {
         this.currentFilePath = storage.getTaskListPath(listName);
@@ -64,10 +64,14 @@ public class TaskManager
             String line = task.id() + ";" + safeTitle + ";" + task.isCompleted() + ";" + task.createdAt();
             lines.add(line);
         }
-
         storage.writeAllLines(currentFilePath, lines);
+    }
 
-
+    public void createNewList(String listName) throws IOException
+    {
+        storage.createNewTaskList(listName);
+        this.currentFilePath = storage.getTaskListPath(listName);
+        saveTaskList();
     }
 
 
