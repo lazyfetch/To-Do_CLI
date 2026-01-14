@@ -73,6 +73,4 @@ public class TaskManager
         this.currentFilePath = storage.getTaskListPath(listName);
         saveTaskList();
     }
-
-
 }
