@@ -2,13 +2,14 @@ package com.todo.model;
 import java.time.LocalDate;
 import java.util.UUID;
 
-public class Task(
+public class Task
+{
         private String id,
         private String title,
         private boolean isCompleted,
         private LocalDate createdAt
-)
-{
+
+
     public Task (String title)
     {
         this.id=UUID.randomUUID().toString();
@@ -16,6 +17,15 @@ public class Task(
         this.isCompleted=false;
         this.createdAt=LocalDate.now();
     }
+
+    public Task(String id,String title, boolean isCompleted, LocalDate createdAt)
+    {
+        this.id=id;
+        this.title=title;
+        this.isCompleted=isCompleted;
+        this.createdAt=createdAt;
+    }
+
     public String getId()
     {
         return id;
@@ -45,5 +55,5 @@ public class Task(
     {
         this.isCompleted=isCompleted;
     }
-    
+
 }

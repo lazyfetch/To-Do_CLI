@@ -12,17 +12,27 @@ public class TaskManager
 {
     FileStorageClass storage= new FileStorageClass();
     private Path currentFilePath;
+
     private List<Task> tasks = new ArrayList<>();
 
+    public boolean checkCurrentFilePath()
+    {
+        if(currentFilePath==null)
+        {
+            return false;
+        }
+        return true;
+    }
     public void addTask(Task task)
     {
         tasks.add(task);
     }
 
-    public boolean removeTask(String id)
+    public void removeTask(String id)
     {
-        tasks.removeIf(task -> task.id().equals(id));
-        return true;
+        tasks.removeIf(task -> task.getId().equals(id));
+
+        System.out.println("\nTask deleted successfully\n");
     }
 
     public List<Task> getAllTasks()
@@ -35,6 +45,8 @@ public class TaskManager
         for (String line : lines)
         {
             String[] parts= line.split(";");
+
+            if (parts.length < 4) continue;
 
             String id=parts[0];
             String title=parts[1].replace("\\;",";");
@@ -60,8 +72,8 @@ public class TaskManager
         List<String> lines = new ArrayList<>();
         for (Task task : tasks)
         {
-            String safeTitle = task.title().replace(";", "\\;");
-            String line = task.id() + ";" + safeTitle + ";" + task.isCompleted() + ";" + task.createdAt();
+            String safeTitle = task.getTitle().replace(";", "\\;");
+            String line = task.getId() + ";" + safeTitle + ";" + task.getIsCompleted() + ";" + task.getCreatedAt();
             lines.add(line);
         }
         storage.writeAllLines(currentFilePath, lines);
@@ -71,6 +83,8 @@ public class TaskManager
     {
         storage.createNewTaskList(listName);
         this.currentFilePath = storage.getTaskListPath(listName);
+
+        this.tasks.clear();
         saveTaskList();
     }
 }

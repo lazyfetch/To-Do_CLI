@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class FileStorageClass
 {
@@ -34,19 +35,28 @@ public class FileStorageClass
     {
         Files.write(file, lines);
     }
-    public void appendLine(Path file, String line) throws IOException
+
+    public List<Path> listTaskLists() throws IOException
     {
-        throw new UnsupportedOperationException();
+        Path storageDir = Paths.get("taskslists");
+
+        if (!Files.exists(storageDir))
+        {
+            Files.createDirectories(storageDir);
+        }
+
+        try(Stream<Path> stream = Files.list(storageDir))
+        {
+            return stream.filter(Files :: isRegularFile).toList();
+        }
     }
-    public List<Path> listTaskLists() throws IOException { throw new UnsupportedOperationException(); }
-    public void deleteTaskList(Path file) throws IOException { throw new UnsupportedOperationException(); }
-
-
-
-
+    public void deleteTaskList(Path file) throws IOException
+    {
+        Files.deleteIfExists(file);
+    }
 }
 
-//Create a new task list: A method to create a new file for a task list.
+//Create a new task list: A method to create a new file for a task list. done
 //Switch between task lists: A method to set the current task list file.
 //Add a task to the current task list: A method to append a task to the current file.
 //Read tasks from the current task list: A method to read all tasks from the current file.
