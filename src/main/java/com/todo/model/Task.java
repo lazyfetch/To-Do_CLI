@@ -9,7 +9,10 @@ public class Task
         private boolean isCompleted;
         private LocalDate createdAt;
 
-        
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_RED = "\u001B[31m";
+
     public Task (String title)
     {
         this.id=UUID.randomUUID().toString();
@@ -56,4 +59,16 @@ public class Task
         this.isCompleted=isCompleted;
     }
 
+
+    public String toString()
+    {
+        if(isCompleted)
+        {
+            return ANSI_GREEN + "[COMPLETED] " + title + " (Created: " + createdAt + ")" + ANSI_RESET;
+        }
+        else
+        {
+            return ANSI_RED + "[PENDING]   " + title + " (Created: " + createdAt + ")" + ANSI_RESET;
+        }
+    }
 }

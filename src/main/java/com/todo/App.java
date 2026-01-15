@@ -87,6 +87,7 @@ public class App
                     break;
 
                 case 3:
+
                     if (!taskManager.checkCurrentFilePath())
                     {
                         System.out.println("You haven't selected a task list, choose that first");
@@ -100,10 +101,44 @@ public class App
                         }
                         else
                         {
+                            System.out.println("\n========= TODO LIST =========");
+
+
+                            System.out.println("\n--- PENDING ---");
+                            boolean hasPending = false;
+
                             for(Task task:taskList)
                             {
-                                System.out.println(task);
+                                if(!task.getIsCompleted())
+                                {
+                                    System.out.println(task);
+                                    hasPending = true;
+                                }
                             }
+                            if(!hasPending)
+                            {
+                                System.out.println("(None)");
+                            }
+
+                            System.out.println("\n--- COMPLETED ---");
+
+                            boolean hasCompleted = false;
+                            for(Task task : taskList)
+                            {
+                                if(task.getIsCompleted())
+                                {
+                                    System.out.println(task);
+                                    hasCompleted = true;
+                                }
+                            }
+                            if(!hasCompleted)
+                            {
+                                System.out.println("(None)");
+                            }
+
+                            System.out.println("\n=============================");
+
+
                         }
                     }
                     break;
@@ -250,7 +285,8 @@ public class App
         } while (input != 7);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         new App().run(args);
     }
 }
