@@ -6,15 +6,19 @@ import com.todo.storage.FileStorageClass;
 import com.todo.util.AutoSaveThread;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.nio.file.Path;
-
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Scanner;
+
 
 public class App
 {
     private final TaskManager taskManager = new TaskManager();
-    public void run(String[] args) {
+    public void run(String[] args)
+    {
         System.out.println("Starting TODO CLI...");
 
         AutoSaveThread saveThread= new AutoSaveThread(taskManager);
@@ -28,7 +32,7 @@ public class App
         int input = 0;
         do
         {
-            System.out.println("1. List all task lists\n2. Choose Task List\n3. Show all tasks\n4.Add a task\n5. Delete a Task\n6. Update a task\n7. Exit\nChoose your option: ");
+            System.out.println("1. Create a task list\n2. List all task lists\n3. Choose Task List\n4. Show all tasks\n5. Add a task\n6. Delete a Task\n7. Update a task\n8. Exit\nChoose your option: ");
 
             input=sc.nextInt();
 
@@ -37,12 +41,41 @@ public class App
             switch (input)
             {
                 case 1:
+                    System.out.println("Enter the name of your new task list: ");
+                    sc.nextLine();
+
+                    String taskListName = sc.nextLine();
+                    Path pathToCheck = Paths.get("taskslists", taskListName + ".txt");
+                    if (Files.exists(pathToCheck)) {
+                        System.out.println("Task list already exists");
+                    }
+                    else
+                    {
+                        try
+                        {
+                            taskManager.createNewList(taskListName);
+                        }
+                        catch (IOException e)
+                        {
+                            System.out.println("Problem occurred while creating a new list: " + e.getMessage());
+                        }
+                    }
+                    break;
+
+                case 2:
                     try
                     {
-                        List <Path> taskLists= storage.listTaskLists();
-                        for(Path path: taskLists)
+                        List<Path> taskLists = storage.listTaskLists();
+                        if (taskLists.isEmpty()) {
+                            System.out.println("No task lists created yet");
+                        }
+                        else
                         {
-                            System.out.println(path);
+                            System.out.println("Available Lists:");
+                            for (Path path : taskLists)
+                            {
+                                System.out.println("- " + path.getFileName().toString().replace(".txt", ""));
+                            }
                         }
                     }
                     catch (IOException e)
@@ -51,19 +84,25 @@ public class App
                     }
                     break;
 
-                case 2:
+                case 3:
                     try
                     {
-                        List <Path> taskLists= storage.listTaskLists();
-                        int i=1;
-                        for(Path path : taskLists)
+                        List<Path> taskLists = storage.listTaskLists();
+                        if (taskLists.isEmpty())
                         {
-                            System.out.println(i+ "." + " " +path+"\n");
+                            System.out.println("No task lists created yet. Create one first (Option 1).");
+                            break;
+                        }
+                        System.out.println("Available Lists:");
+                        int i=1;
+                        for (Path path : taskLists)
+                        {
+                            System.out.println(i + ". " + path.getFileName().toString().replace(".txt", ""));
                             i++;
                         }
                         System.out.println("Choose your task list");
 
-                        int taskListChoice=sc.nextInt();
+                        int taskListChoice = sc.nextInt();
                         sc.nextLine();
 
                         if (taskListChoice < 1 || taskListChoice > taskLists.size())
@@ -74,65 +113,51 @@ public class App
 
                         Path chosenPath = taskLists.get(taskListChoice - 1);
 
-                        String fileName=chosenPath.getFileName().toString();
-                        String listName=fileName.replaceFirst("\\.txt","");
+                        String fileName = chosenPath.getFileName().toString();
+                        String listName = fileName.replaceFirst("\\.txt", "");
 
                         taskManager.loadTaskList(listName);
                         System.out.println("Loaded task list: " + listName);
-                    }
-                    catch (IOException e)
-                    {
+                    } catch (IOException e) {
                         System.out.println("Error loading the task lists: " + e.getMessage());
                     }
                     break;
 
-                case 3:
+                case 4:
 
-                    if (!taskManager.checkCurrentFilePath())
-                    {
+                    if (!taskManager.checkCurrentFilePath()) {
                         System.out.println("You haven't selected a task list, choose that first");
-                    }
-                    else
-                    {
-                        List<Task> taskList= taskManager.getAllTasks();
-                        if(taskList.isEmpty())
-                        {
+                    } else {
+                        List<Task> taskList = taskManager.getAllTasks();
+                        if (taskList.isEmpty()) {
                             System.out.println("No tasks yet!");
-                        }
-                        else
-                        {
+                        } else {
                             System.out.println("\n========= TODO LIST =========");
 
 
                             System.out.println("\n--- PENDING ---");
                             boolean hasPending = false;
 
-                            for(Task task:taskList)
-                            {
-                                if(!task.getIsCompleted())
-                                {
+                            for (Task task : taskList) {
+                                if (!task.getIsCompleted()) {
                                     System.out.println(task);
                                     hasPending = true;
                                 }
                             }
-                            if(!hasPending)
-                            {
+                            if (!hasPending) {
                                 System.out.println("(None)");
                             }
 
                             System.out.println("\n--- COMPLETED ---");
 
                             boolean hasCompleted = false;
-                            for(Task task : taskList)
-                            {
-                                if(task.getIsCompleted())
-                                {
+                            for (Task task : taskList) {
+                                if (task.getIsCompleted()) {
                                     System.out.println(task);
                                     hasCompleted = true;
                                 }
                             }
-                            if(!hasCompleted)
-                            {
+                            if (!hasCompleted) {
                                 System.out.println("(None)");
                             }
 
@@ -143,7 +168,7 @@ public class App
                     }
                     break;
 
-                case 4:
+                case 5:
                     if (!taskManager.checkCurrentFilePath())
                     {
                         System.out.println("You haven't selected a task list, choose that first");
@@ -153,15 +178,12 @@ public class App
                         sc.nextLine();
 
                         System.out.println("Enter your task: ");
-                        String task  = sc.nextLine();
+                        String task = sc.nextLine();
 
-                        if(task.trim().isEmpty())
-                        {
+                        if (task.trim().isEmpty()) {
                             System.out.println("Task cannot be empty");
-                        }
-                        else
-                        {
-                            Task newTask=new Task(task);
+                        } else {
+                            Task newTask = new Task(task);
                             taskManager.addTask(newTask);
                             System.out.println("Task added!");
                         }
@@ -170,37 +192,31 @@ public class App
 
                     break;
 
-                case 5:
-                    if (!taskManager.checkCurrentFilePath())
-                    {
+                case 6:
+                    if (!taskManager.checkCurrentFilePath()) {
                         System.out.println("You haven't selected a task list, choose that first");
-                    }
-                    else
-                    {
-                        List<Task> taskList= taskManager.getAllTasks();
-                        if(taskList.isEmpty())
+                    } else {
+                        List<Task> currentTasks = taskManager.getAllTasks();
+                        if (currentTasks.isEmpty())
                         {
                             System.out.println("No tasks to delete");
                         }
                         else
                         {
-                            sc.nextLine();
-                            int i=1;
-                            for(Task task:taskList)
+                            for (int i = 0; i < currentTasks.size(); i++)
                             {
-                                System.out.println(i+ ". " + task);
-                                i++;
+                                System.out.println((i + 1) + ". " + currentTasks.get(i).getTitle());
                             }
                             System.out.println("Enter the number of the task to delete: ");
-                            int num=sc.nextInt();
+                            int num = sc.nextInt();
 
-                            if (num < 1 || num > taskList.size())
+                            if (num < 1 || num > currentTasks.size())
                             {
                                 System.out.println("Invalid task number.");
                             }
                             else
                             {
-                                Task taskToRemove=taskList.get(num-1);
+                                Task taskToRemove = currentTasks.get(num - 1);
 
                                 String id = taskToRemove.getId();
                                 taskManager.removeTask(id);
@@ -209,80 +225,67 @@ public class App
                         }
                     }
                     break;
-                case 6:
-                    if (!taskManager.checkCurrentFilePath())
-                    {
+                case 7:
+                    if (!taskManager.checkCurrentFilePath()) {
                         System.out.println("You haven't selected a task list, choose that first");
-                    }
-                    else
-                    {
-                        List<Task> taskList= taskManager.getAllTasks();
-                        if(taskList.isEmpty())
-                        {
+                    } else {
+                        List<Task> taskList = taskManager.getAllTasks();
+                        if (taskList.isEmpty()) {
                             System.out.println("No tasks to update");
-                        }
-                        else
-                        {
-                            sc.nextLine();
-                            int i=1;
-                            for(Task task:taskList)
-                            {
-                                System.out.println(i+ ". " + task);
-                                i++;
-                            }
-                            System.out.println("Enter the number of the task you want to update: ");
-                            int num=sc.nextInt();
+                        } else {
+                            List<Task> currentTasks = taskManager.getAllTasks();
+                            if (currentTasks.isEmpty()) {
+                                System.out.println("No tasks to update");
+                            } else {
+                                for (int i = 0; i < currentTasks.size(); i++) {
+                                    System.out.println((i + 1) + ". " + currentTasks.get(i).getTitle());
+                                }
+                                System.out.println("Enter the number of the task you want to update: ");
+                                int num = sc.nextInt();
 
-                            if (num < 1 || num > taskList.size())
-                            {
-                                System.out.println("Invalid task number.");
-                            }
-                            else
-                            {
-                                sc.nextLine();
-                                System.out.println("1. Title\n2. Completion Status\n What do you want to update?");
-                                int choice=sc.nextInt();
-
-                                if(choice==1)
-                                {
-                                    Task taskToUpdate=taskList.get(num-1);
-
-                                    System.out.println("Enter new title: ");
+                                if (num < 1 || num > taskList.size()) {
+                                    System.out.println("Invalid task number.");
+                                } else {
                                     sc.nextLine();
-                                    String newTitle = sc.nextLine();
+                                    System.out.println("1. Title\n2. Completion Status\n What do you want to update?");
+                                    int choice = sc.nextInt();
 
-                                    taskToUpdate.updateTitle(newTitle);
-                                    System.out.println("Task updated successfully!");
-                                }
-                                else if (choice==2)
-                                {
-                                    Task taskToUpdate=taskList.get(num-1);
-                                    boolean isCompleted=taskToUpdate.getIsCompleted();
+                                    if (choice == 1) {
+                                        Task taskToUpdate = taskList.get(num - 1);
 
-                                    if(isCompleted)
-                                    {
-                                        taskToUpdate.updateIsCompleted(false);
+                                        System.out.println("Enter new title: ");
+                                        sc.nextLine();
+                                        String newTitle = sc.nextLine();
+
+                                        taskToUpdate.updateTitle(newTitle);
+                                        System.out.println("Task updated successfully!");
+                                    } else if (choice == 2) {
+                                        Task taskToUpdate = taskList.get(num - 1);
+                                        boolean isCompleted = taskToUpdate.getIsCompleted();
+
+                                        if (isCompleted) {
+                                            taskToUpdate.updateIsCompleted(false);
+                                        } else {
+                                            taskToUpdate.updateIsCompleted(true);
+                                        }
+                                        System.out.println("Task updated successfully!");
                                     }
-                                    else
-                                    {
-                                        taskToUpdate.updateIsCompleted(true);
-                                    }
-                                    System.out.println("Task updated successfully!");
                                 }
+
                             }
-
                         }
                     }
+
                     break;
 
-                case 7:
+                case 8:
                     System.out.println("Bye!!!");
                     System.exit(0);
 
                 default:
                     System.out.println("Invalid input please select a valid option");
             }
-        } while (input != 7);
+        } while (input != 8);
     }
 
     public static void main(String[] args)

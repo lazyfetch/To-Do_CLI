@@ -22,7 +22,6 @@ public class AutoSaveThread extends Thread
                 if(manager.checkCurrentFilePath())
                 {
                     manager.saveTaskList();
-                    System.out.println("[Auto Saved]");
                 }
             }
             catch (InterruptedException e)
