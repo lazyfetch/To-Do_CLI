@@ -23,12 +23,12 @@ public class TaskManager
         }
         return true;
     }
-    public void addTask(Task task)
+    public synchronized void addTask(Task task)
     {
         tasks.add(task);
     }
 
-    public void removeTask(String id)
+    public synchronized void removeTask(String id)
     {
         tasks.removeIf(task -> task.getId().equals(id));
 
@@ -67,7 +67,7 @@ public class TaskManager
         convertToTasks(listName);
     }
 
-    public void saveTaskList() throws IOException
+    public synchronized void saveTaskList() throws IOException
     {
         List<String> lines = new ArrayList<>();
         for (Task task : tasks)

@@ -3,6 +3,7 @@ package com.todo;
 import com.todo.model.Task;
 import com.todo.service.TaskManager;
 import com.todo.storage.FileStorageClass;
+import com.todo.util.AutoSaveThread;
 
 import java.io.IOException;
 import java.util.List;
@@ -10,11 +11,20 @@ import java.nio.file.Path;
 
 import java.util.Scanner;
 
-public class App {
+public class App
+{
     private final TaskManager taskManager = new TaskManager();
     public void run(String[] args) {
         System.out.println("Starting TODO CLI...");
+
+        AutoSaveThread saveThread= new AutoSaveThread(taskManager);
+        saveThread.setDaemon(true); // means the thread dies when the main app finishes.
+
+        saveThread.start();
+
+
         Scanner sc=new Scanner(System.in);
+
         int input = 0;
         do
         {
@@ -109,7 +119,7 @@ public class App {
 
                         System.out.println("Enter your task: ");
                         String task  = sc.nextLine();
-                        
+
                         if(task.trim().isEmpty())
                         {
                             System.out.println("Task cannot be empty");

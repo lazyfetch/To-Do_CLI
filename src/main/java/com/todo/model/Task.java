@@ -4,12 +4,12 @@ import java.util.UUID;
 
 public class Task
 {
-        private String id,
-        private String title,
-        private boolean isCompleted,
-        private LocalDate createdAt
+        private String id;
+        private String title;
+        private boolean isCompleted;
+        private LocalDate createdAt;
 
-
+        
     public Task (String title)
     {
         this.id=UUID.randomUUID().toString();
